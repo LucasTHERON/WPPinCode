@@ -40,6 +40,8 @@ class Database
 
     public function dump(){
         // var_dump($this->wpdb);
+        self::createHashKey();
+        return;
         $db = $this->wpdb;
         var_dump($this->option_table);
         // $value = $db->get_var( $wpdb->prepare(
@@ -70,7 +72,7 @@ class Database
 
     private function addValue($table, $args){
         // $args should be ['col1' => 'val1', 'col2' => 'val2']
-        $wpdb->insert(
+        $this->wpdb->insert(
             $table,
             $args
         );
@@ -90,9 +92,9 @@ class Database
         if($is_hash_key_defined){
             return;
         }else{
-            $hash_key = bin2hex(random_bytes(8));
+            $hash_key = bin2hex(random_bytes(16));
             self::addValue(
-                $this->wp_pin_code_table,
+                $this->wp_pincode_table,
                 [
                     'name'  =>  'wp_pincode_hash_key',
                     'value' => $hash_key

@@ -15,7 +15,7 @@ function hello_world(){
     require WPPINCODE_DIR . 'classes/class-Database.php';
 
     $db = new \WPPinCode\Database;
-    $db->createHashKey();
+    $db->dump();
 }
 
 // DEFINIR CODE DANS LE BACKEND
