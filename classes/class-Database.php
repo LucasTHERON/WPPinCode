@@ -13,10 +13,29 @@ class Database
         $this->wpdb = $wpdb;
         $this->option_table = $wpdb->prefix . 'options';
         $this->wp_pincode_table = $wpdb->prefix . 'wp_pincode_options';
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     }
 
     public function createWpPincodeTable(){
+        if(!$this->wpdb->get_var( "SHOW TABLES LIKE '$this->wp_pincode_table'" )){
 
+            // Get the database character set and collation
+            $charset_collate = $this->wpdb->get_charset_collate();
+
+            // The SQL query to create the table
+            $sql = "CREATE TABLE $this->wp_pincode_table (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                name varchar(255) NOT NULL,
+                value varchar(255) NOT NULL,
+                PRIMARY KEY (id)
+            ) $charset_collate;";
+
+            $new_database = dbDelta($sql);
+            if($new_database){
+                $hash_key = self::createHashKey();
+            }
+        }
     }
 
     public function dump(){
@@ -41,14 +60,20 @@ class Database
         $secondTest = self::checkIfEntryExists($this->option_table, 'option_id', 1500);
         var_dump($secondTest);
 
-        var_dump("--------------------------");
-        var_dump($this->wpdb->get_var( "SHOW TABLES LIKE '$this->wp_pincode_table'" ));
-        var_dump($this->wpdb->get_var( "SHOW TABLES LIKE '$this->option_table'" ));
+        // var_dump("--------------------------");
+        // var_dump($this->wpdb->get_var( "SHOW TABLES LIKE '$this->wp_pincode_table'" ));
+        // var_dump($this->wpdb->get_var( "SHOW TABLES LIKE '$this->option_table'" ));
         // null if doesn't exist
+
+        self::createWpPincodeTable();
     }
 
-    private function addValue($table, $column, $value){
-        return;
+    private function addValue($table, $args){
+        // $args should be ['col1' => 'val1', 'col2' => 'val2']
+        $wpdb->insert(
+            $table,
+            $args
+        );
     }
 
     private function checkIfEntryExists($table, $column, $value){
@@ -61,7 +86,19 @@ class Database
     }
 
     private function createHashKey(){
-
+        $is_hash_key_defined = self::checkIfEntryExists($this->wp_pincode_table, 'name', 'wp_pincode_hash_key');
+        if($is_hash_key_defined){
+            return;
+        }else{
+            $hash_key = bin2hex(random_bytes(8));
+            self::addValue(
+                $this->wp_pin_code_table,
+                [
+                    'name'  =>  'wp_pincode_hash_key',
+                    'value' => $hash_key
+                ]
+            );
+        }
     }
 
     public function getHashKey(){
