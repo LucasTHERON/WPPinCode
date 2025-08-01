@@ -16,6 +16,18 @@ function hello_world(){
 
     $db = new \WPPinCode\Database;
     $db->dump();
+
+    // global $wpdb;
+    // $table = $wpdb->prefix . 'wp_pincode_options';
+    // $column = 'name';
+    // $value = 'wp_pincode_hash_key';
+    // var_dump("SELECT * FROM wp_wp_pincode_options WHERE option_name = wp_pincode_hash_key");
+    // $test = $wpdb->get_row( "SELECT * FROM wp_wp_pincode_options WHERE option_name = 'wp_pincode_hash_key'");
+    // // $test = $wpdb->get_row( "SELECT * FROM {$table} WHERE {$column} = {$value}", OBJECT );
+    // var_dump($test);
+    // var_dump('________');
+    // $test = $wpdb->get_row( "SELECT * FROM wp_options WHERE option_id = 5");
+    // var_dump($test);
 }
 
 // DEFINIR CODE DANS LE BACKEND

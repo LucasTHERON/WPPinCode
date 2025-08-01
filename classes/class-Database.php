@@ -26,8 +26,8 @@ class Database
             // The SQL query to create the table
             $sql = "CREATE TABLE $this->wp_pincode_table (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
-                name varchar(255) NOT NULL,
-                value varchar(255) NOT NULL,
+                option_name varchar(255) NOT NULL,
+                option_value varchar(255) NOT NULL,
                 PRIMARY KEY (id)
             ) $charset_collate;";
 
@@ -40,7 +40,8 @@ class Database
 
     public function dump(){
         // var_dump($this->wpdb);
-        self::createHashKey();
+        // self::createHashKey();
+        self::createHashedNumbers();
         return;
         $db = $this->wpdb;
         var_dump($this->option_table);
@@ -79,7 +80,9 @@ class Database
     }
 
     private function checkIfEntryExists($table, $column, $value){
-        $entry = $this->wpdb->get_row( "SELECT * FROM {$table} WHERE {$column} = {$value}", OBJECT );
+        var_dump("SELECT * FROM $table WHERE $column = '$value'");
+        $entry = $this->wpdb->get_row( "SELECT * FROM $table WHERE $column = '$value'", OBJECT );
+        var_dump($entry);
         if($entry){
             return true;
         }else{
@@ -88,7 +91,8 @@ class Database
     }
 
     private function createHashKey(){
-        $is_hash_key_defined = self::checkIfEntryExists($this->wp_pincode_table, 'name', 'wp_pincode_hash_key');
+        $is_hash_key_defined = self::checkIfEntryExists($this->wp_pincode_table, 'option_name', 'wp_pincode_hash_key');
+        var_dump($is_hash_key_defined);
         if($is_hash_key_defined){
             return;
         }else{
@@ -100,6 +104,35 @@ class Database
                     'value' => $hash_key
                 ]
             );
+        }
+    }
+
+        private function createHashedNumbers(){
+        $is_hashed_num_defined = self::checkIfEntryExists($this->wp_pincode_table, 'option_name', 'wp_pincode_hashed_numbers');
+        if($is_hashed_num_defined){
+            return;
+        }else{
+            // $n = bin2hex(random_bytes(4));
+            // var_dump("1 = ");
+            $hashed_numbers = [];
+            for($i = 0; $i <= 9; $i++){
+                $n = bin2hex(random_bytes(2));
+                echo $i . ' => ' . $n . '<br>';
+                $hashed_numbers[] = $n;
+            }
+            var_dump($hashed_numbers);
+
+            $newArr = implode(",", $hashed_numbers);
+            var_dump($newArr);
+            var_dump(explode(",", $newArr));
+            // $hash_key = bin2hex(random_bytes(16));
+            // self::addValue(
+            //     $this->wp_pincode_table,
+            //     [
+            //         'name'  =>  'wp_pincode_hash_key',
+            //         'value' => $hash_key
+            //     ]
+            // );
         }
     }
 
