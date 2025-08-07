@@ -13,9 +13,9 @@ add_action('init', 'hello_world');
 function hello_world(){
 
     require WPPINCODE_DIR . 'classes/class-Database.php';
+    require WPPINCODE_DIR . 'classes/class-Pincode.php';
 
-    $db = new \WPPinCode\Database;
-    $db->dump();
+    $db = new \WPPinCode\Pincode;
 
     // global $wpdb;
     // $table = $wpdb->prefix . 'wp_pincode_options';

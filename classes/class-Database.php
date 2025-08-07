@@ -8,23 +8,32 @@ class Database
     private $option_table;
     private $wp_pincode_table;
 
-    public function __construct(){
+    protected function __construct(){
         global $wpdb;
         $this->wpdb = $wpdb;
         $this->option_table = $wpdb->prefix . 'options';
         $this->wp_pincode_table = $wpdb->prefix . 'wp_pincode_options';
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+
+        var_dump('construct databse');
     }
 
-    public function dump(){
-
-
-        $hashed_numbers = self::getValue($this->wp_pincode_table, 'wp_pincode_hashed_numbers');
-        $hashed_numbers_array = explode(',', $hashed_numbers);
-        $code = $hashed_numbers_array[1] . $hashed_numbers_array[2] . $hashed_numbers_array[3] . $hashed_numbers_array[4];
-        self::createPincode($code);
+    protected function dump(){
+        // $hashed_numbers = self::getValue($this->wp_pincode_table, 'wp_pincode_hashed_numbers');
+        // $hashed_numbers_array = explode(',', $hashed_numbers);
+        // $code = $hashed_numbers_array[1] . $hashed_numbers_array[2] . $hashed_numbers_array[3] . $hashed_numbers_array[4];
+        // self::createPincode($code);
+        
     }
+
+    /**
+     * 
+     * 
+     * PRIVATE FUNCTIONS
+     * 
+     * 
+     */
 
     private function addValue($table, $args){
         // $args should be ['col1' => 'val1', 'col2' => 'val2']
@@ -171,6 +180,14 @@ class Database
         return $hashed_code;
     }
 
+    private function privateFunction(){
+        return 'private';
+    }
+
+    protected function protectedFunction(){
+        return 'protected';
+    }
+
     // Add hash
     // Update hasg
     // CRUD
@@ -183,4 +200,11 @@ class Database
      */
 
 
+}
+
+class DatabaseInterface extends Database
+{
+    public function __construct(){
+        parent::__construct();
+    }
 }
