@@ -11,11 +11,9 @@ require_once 'includes/define.php';
 add_action('init', 'hello_world');
 
 function hello_world(){
-
-    require WPPINCODE_DIR . 'classes/class-Database.php';
     require WPPINCODE_DIR . 'classes/class-Pincode.php';
 
-    $db = new \WPPinCode\Pincode;
+    $wp_pincode = new \WPPinCode\WPPincode;
 
     // global $wpdb;
     // $table = $wpdb->prefix . 'wp_pincode_options';

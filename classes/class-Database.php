@@ -15,8 +15,6 @@ class Database
         $this->wp_pincode_table = $wpdb->prefix . 'wp_pincode_options';
 
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-
-        var_dump('construct databse');
     }
 
     protected function dump(){
@@ -27,6 +25,20 @@ class Database
         
     }
 
+    protected function getOptions(){
+
+        self::checkDatabaseEntries();
+
+        $is_pincode_defined = self::checkIfEntryExists($this->wp_pincode_table, 'option_name', 'wp_pincode');
+        $is_app_locked = self::getValue($this->option_table, 'wp_pincode_lock');
+
+        return [
+            'is_pincode_defined'    =>  $is_pincode_defined,
+            'is_app_locked'         =>  $is_app_locked,
+        ];
+
+    }
+
     /**
      * 
      * 
@@ -35,6 +47,16 @@ class Database
      * 
      */
 
+    private function addOptions(){
+        self::addValue(
+            $this->option_table,
+            [
+                'option_name'  =>  'wp_pincode_lock',
+                'option_value' => false
+            ]
+        );
+    }
+    
     private function addValue($table, $args){
         // $args should be ['col1' => 'val1', 'col2' => 'val2']
         $this->wpdb->insert(
@@ -54,13 +76,39 @@ class Database
     }
 
     private function checkIfEntryExists($table, $column, $value){
-        var_dump("SELECT * FROM $table WHERE $column = '$value'");
         $entry = $this->wpdb->get_row( "SELECT * FROM $table WHERE $column = '$value'", OBJECT );
-        var_dump($entry);
         if($entry){
             return true;
         }else{
             return false;
+        }
+    }
+
+    private function checkDatabaseEntries(){
+        // This method is only here to check required entries for the plugin to work
+
+        // Database lock option
+        $wp_pincode_lock_check = self::checkIfEntryExists($this->option_table, 'option_name', 'wp_pincode_lock');
+        if(!$wp_pincode_lock_check){
+            self::addValue(
+                $this->option_table,
+                [
+                    'option_name'  =>  'wp_pincode_lock',
+                    'option_value' => false
+                ]
+            );
+        }
+
+        // Main hash key
+        $wp_pincode_hash_key_check = self::checkIfEntryExists($this->wp_pincode_table, 'option_name', 'wp_pincode_hash_key');
+        if(!$wp_pincode_hash_key_check){
+            self::createHashKey();
+        }
+
+        // Hahsed numbers
+        $wp_pincode_hashed_numbers_check = self::checkIfEntryExists($this->wp_pincode_table, 'option_name', 'wp_pincode_hash_key');
+        if(!$wp_pincode_hashed_numbers_check){
+            self::createHashedNumbers();
         }
     }
 
@@ -129,10 +177,7 @@ class Database
         if($is_pincode_defined){
             return;
         }else{
-            var_dump('Create pncode');
             $hashed_code = self::hashCode($code);
-            var_dump('Code hashé');
-            var_dump($hashed_code);
             self::addValue(
                 $this->wp_pincode_table,
                 [
@@ -140,23 +185,6 @@ class Database
                     'option_value' => $hashed_code
                 ]
             );
-            // var_dump($code);
-            // $hashed_numbers = [];
-            // for($i = 0; $i <= 9; $i++){
-            //     $n = bin2hex(random_bytes(2));
-            //     echo $i . ' => ' . $n . '<br>';
-            //     $hashed_numbers[] = $n;
-            // }
-            
-
-            
-            // self::addValue(
-            //     $this->wp_pincode_table,
-            //     [
-            //         'option_name'  =>  'wp_pincode',
-            //         'option_value' => $pincode
-            //     ]
-            // );
         }
     }
 
@@ -206,5 +234,10 @@ class DatabaseInterface extends Database
 {
     public function __construct(){
         parent::__construct();
+    }
+
+    public function getOptions(){
+        $options = parent::getOptions();
+        return $options;
     }
 }
